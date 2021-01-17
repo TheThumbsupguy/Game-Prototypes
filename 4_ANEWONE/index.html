@@ -2,16 +2,33 @@
 <html>
 
 <head>
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser-arcade-physics.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.24.1/dist/phaser-arcade-physics.min.js"></script>
 </head>
 
 <body>
 
   <script>
-    var config = {
+    const config = {
       type: Phaser.AUTO,
-      width: 800,
-      height: 600,
+      scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        // width: 1366,
+        // height: 768,
+        autoResize: true
+      },
+      width: 480,
+      height: 270,
+      physics: {
+        default: 'arcade',
+        arcade: {
+          gravity: {
+            y: 0
+          },
+          debug: false
+        }
+      },
+      pixelArt: true,
       scene: {
         preload: preload,
         create: create,
@@ -19,27 +36,219 @@
       }
     };
 
-    var game = new Phaser.Game(config);
+    const game = new Phaser.Game(config);
+    const gravityY = 600;
+    // const playerVelX = 160;
+    // const playerVelY = -330;
+    const playerVelX = 96;
+    const playerVelY = -256;
+    // const gravityY = 400;
+
+    const floorOffsetY = 0;
+    const floorOffsetX = 0;
 
     function preload() {
-      this.load.image('sky', 'assets/sky.png');
-      this.load.image('ground', 'assets/platform.png');
-      this.load.image('star', 'assets/star.png');
-      this.load.image('bomb', 'assets/bomb.png');
       this.load.spritesheet('dude',
         'assets/dude.png',
         { frameWidth: 32, frameHeight: 48 }
       );
+      //this.load.image('ground', 'assets/platform.png');
+      //this.load.image('slope', 'assets/slope.png');
     }
 
     function create() {
-      this.add.image(400, 300, 'sky');
-      this.add.image(400, 300, 'star');
+      // this.physics.world.createDebugGraphic();
+      // this.physics.world.debugGraphic.visible = false;
+
+      const borderStrokeWidth = 2;
+      this.add.rectangle(0, 0, game.config.width, borderStrokeWidth, 0xffff00).setOrigin(0);
+      this.add.rectangle(game.config.width - borderStrokeWidth, 0, borderStrokeWidth, game.config.height, 0xffff00).setOrigin(0);
+      this.add.rectangle(0, game.config.height - borderStrokeWidth, game.config.width, borderStrokeWidth, 0xffff00).setOrigin(0);
+      this.add.rectangle(0, 0, borderStrokeWidth, game.config.height, 0xffff00).setOrigin(0);
+
+      // ground
+      const groundGroup = [
+        this.add.rectangle(-400 + floorOffsetX, game.config.height - 96 - floorOffsetY, 400, 32, 0x21572f).setOrigin(0),
+        //this.add.image(0, 568, 'ground').setOrigin(0),
+        this.add.rectangle(0 + floorOffsetX, game.config.height - 32 - floorOffsetY, 400, 32, 0x21572f).setOrigin(0),
+        this.add.rectangle(400 + floorOffsetX, game.config.height - 96 - floorOffsetY, 400, 32, 0x21572f).setOrigin(0),
+      ];
+      this.ground = this.physics.add.staticGroup();
+      this.ground.addMultiple(groundGroup);
+
+      //slopes
+      const slopeGroup = [
+        //this.add.image(336, 504, 'slope').setOrigin(0),
+        this.add.triangle(336 + floorOffsetX, game.config.height - 96 - floorOffsetY, 0, 64, 64, 0, 64, 64, 0x21572f).setOrigin(0).setName('slope-1'),
+        this.add.triangle(0 + floorOffsetX, game.config.height - 96 - floorOffsetY, 0, 0, 64, 64, 0, 64, 0x21572f).setOrigin(0).setName('slope-2'),
+      ];
+      this.slopes = this.physics.add.staticGroup();
+      this.slopes.addMultiple(slopeGroup);
+
+      // create geometric shapes for slope collision detection
+      this.geometricSlopes = [];
+      this.slopes.children.iterate(slope => {
+        let { x1, y1, x2, y2, x3, y3 } = slope.geom;
+        x1 += slope.x;
+        y1 += slope.y;
+        x2 += slope.x;
+        y2 += slope.y;
+        x3 += slope.x;
+        y3 += slope.y;
+        this.geometricSlopes[slope.name] = new Phaser.Geom.Triangle(x1, y1, x2, y2, x3, y3);
+      });
+
+      // player
+      this.player = this.physics.add.sprite(200 + floorOffsetX, game.config.height - 96 - floorOffsetY, 'dude');
+      this.player.body.gravity.y = gravityY;
+
+      // set main camera to follow the player
+      this.cameras.main.startFollow(this.player);
+
+      // player animations
+      this.anims.create({
+        key: 'turn',
+        frames: [{ key: 'dude', frame: 4 }],
+      });
+      this.anims.create({
+        key: 'right',
+        frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
+        frameRate: 6,
+        repeat: -1
+      });
+      this.anims.create({
+        key: 'rightJump',
+        frames: [{ key: 'dude', frame: 6 }],
+      });
+
+      // bind keyboard controls
+      this.cursors = this.input.keyboard.createCursorKeys();
+
+      // initial debug graphics styles
+      // this.graphics = this.add.graphics({
+      //   lineStyle: { width: 2, color: 0xff0000 }
+      // });
+
+      // collision detection
+      this.physics.add.collider(this.player, this.ground);
+      this.physics.add.overlap(this.player, this.slopes, playerSlopeOverlap, null, this);
     }
 
     function update() {
+      const isGround =
+        this.player.body.touching.down || this.player.body.blocked.down;
+
+      // this.graphics.clear();
+      // this.graphics.lineStyle(2, 0xff0000);
+
+      // Player move left, move right and idle
+      if ((this.cursors.right.isDown || this.cursors.left.isDown) && (isGround || this.player.isOnSlope))
+        this.player.anims.play("right", true);
+      else if (!isGround && !this.player.isOnSlope)
+        this.player.anims.play("rightJump", true);
+      else this.player.anims.play("turn", true);
+
+      if (this.cursors.right.isDown) {
+        this.player.body.setVelocityX(playerVelX);
+        this.player.setFlipX(false);
+      } else if (this.cursors.left.isDown) {
+        this.player.body.setVelocityX(-playerVelX);
+        this.player.setFlipX(true);
+      } else {
+        if (!isGround && !this.player.isOnSlope)
+          this.player.body.velocity.x *= 0.98;
+        else this.player.body.setVelocityX(0);
+      }
+
+      // Player jump
+      if (isGround && this.cursors.up.isDown) {
+        this.player.body.setVelocityY(playerVelY);
+        this.player.body.gravity.y = gravityY;
+      }
+
+      // Slope collision
+      let playerIsInSlopeBody = false;
+      let playerIsOnSlope = false;
+      this.slopes.children.iterate(slope => {
+        if (this.physics.world.intersects(this.player.body, slope.body)) {
+          const geometricSlope = this.geometricSlopes[slope.name];
+          playerIsInSlopeBody = true;
+          if (intersects(this.player.getBounds(), geometricSlope)) {
+            playerIsOnSlope = true;
+          }
+        }
+      });
+
+      if (!playerIsInSlopeBody) {
+        this.player.body.setAllowGravity(true);
+      }
+
+      if (playerIsOnSlope) {
+        this.player.isOnSlope = true;
+        //this.graphics.lineStyle(2, 0xff0000);
+      } else {
+        this.player.isOnSlope = false;
+        //this.graphics.lineStyle(2, 0xffff00);
+      }
+
+      // Debug line style
+      // this.slopes.children.iterate(slope => {
+      //   const geometricSlope = this.geometricSlopes[slope.name];
+      //   this.graphics.strokeTriangleShape(geometricSlope);
+      // });
     }
 
+    // Geometric intersection
+    function intersects(objA, objB) {
+      return Phaser.Geom.Intersects.RectangleToTriangle(objA, objB);
+    }
+
+    function playerSlopeOverlap(player, slope) {
+      const geometricSlope = this.geometricSlopes[slope.name];
+      // Offset used to help the player overlap the slope,
+      // otherwise there is some jittering...
+      const playerOffset = 1;
+
+      if (intersects(player.getBounds(), geometricSlope)) {
+        if (this.cursors.up.isDown) {
+          player.body.setAllowGravity(true);
+          player.body.gravity.y = gravityY;
+          player.body.setVelocityY(playerVelY);
+        }
+        // |\
+        // | \
+        // |__\
+        else if (slope.geom.y1 === 0) {
+          let dX =
+            slope.x + slope.width - player.body.position.x;
+
+          player.body.position.y =
+            slope.y + slope.height - player.height - dX + playerOffset;
+
+          if (player.body.position.y + player.height - playerOffset > slope.y) {
+            player.body.setAllowGravity(false);
+          } else {
+            player.body.setAllowGravity(true);
+          }
+        }
+        //   /|
+        //  / |
+        // /__|
+        else {
+          let dX =
+            player.body.position.x + player.width - slope.x;
+
+          player.body.position.y =
+            slope.y + slope.height - player.height - dX + playerOffset;
+
+          if (player.body.position.y + player.height - playerOffset > slope.y) {
+            player.body.setAllowGravity(false);
+          } else {
+            player.body.setAllowGravity(true);
+          }
+        }
+      }
+    }
   </script>
 
 </body>

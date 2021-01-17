@@ -1,0 +1,19 @@
+{
+  "name": "jet-slope-willy",
+  "version": "1.0.0",
+  "description": "Small project to handle slopes with Phaser 3 Arcade Physics,  original project is https://www.emanueleferonato.com/2016/05/04/my-take-on-handling-slopes-with-phaser-and-arcade-physics/  ",
+  "main": "index.html",
+  "scripts": {
+    "start": "parcel index.html --open",
+    "build": "parcel build index.html"
+  },
+  "dependencies": {
+    "phaser": "3.24.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.3",
+    "http-server": "^0.12.3",
+    "parcel-bundler": "^1.12.4"
+  },
+  "keywords": []
+}

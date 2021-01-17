@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.24.1/dist/phaser-arcade-physics.min.js"></script>
+</head>
+
+<body>
+
+  <script>
+    const config = {
+      type: Phaser.AUTO,
+      // scale: {
+      //   mode: Phaser.Scale.FIT,
+      //   autoCenter: Phaser.Scale.CENTER_BOTH,
+      //   parent: "game-container",
+      //   // width: 800,
+      //   // height: 600,
+      //   // width: 480,
+      //   // height: 320,
+      //   width: 960,
+      //   height: 640,
+      //   //autoResize: true
+      // },
+      //backgroundColor: '0xffffff',
+      width: 800,
+      height: 600,
+      physics: {
+        default: 'arcade',
+        arcade: {
+          gravity: {
+            y: 0
+          },
+          debug: false
+        }
+      },
+      pixelArt: true,
+      scene: {
+        preload: preload,
+        create: create,
+        update: update
+      }
+    };
+
+    const game = new Phaser.Game(config);
+    // const gravityY = 600;
+    // const playerVelX = 160;
+    // const playerVelY = -330;
+    const playerVelX = 64;
+    const playerVelY = -192;
+    const gravityY = 400;
+
+    function preload() {
+      this.load.spritesheet('dude',
+        'assets/dude.png',
+        { frameWidth: 32, frameHeight: 48 }
+      );
+      // this.load.image('ground', 'assets/platform.png');
+      this.load.image('slope2', 'assets/slope.png');
+      this.load.image('floor', 'assets/assets/floor.png');
+      this.load.image('big', 'assets/assets/big.png');
+      this.load.image('slope', 'assets/assets/slope.png');
+    }
+
+    function create() {
+      // ground
+      // const test = this.physics.add.sprite(0, 568, 'ground').setOrigin(0).setImmovable(true)
+      // test.body.setAllowGravity(false);
+      // const test2 = this.physics.add.sprite(400, 504, 'ground').setOrigin(0).setImmovable(true)
+      // test2.body.setAllowGravity(false);
+      // // const groundGroup = [
+      // //   //this.add.rectangle(-400, 504, 400, 32, 0x21572f).setOrigin(0),
+      // //   //this.add.image(0, 568, 'ground').setOrigin(0),
+      // //   //this.add.rectangle(0, 568, 400, 32, 0x21572f).setOrigin(0),
+      // //   //this.add.rectangle(400, 504, 400, 32, 0x21572f).setOrigin(0),
+      // // ];
+      // // this.ground = this.physics.add.staticGroup();
+      // // this.ground.addMultiple(groundGroup);
+
+      // //slopes
+      this.slope2 = this.physics.add.sprite(192, 192, 'slope2').setOrigin(0).setImmovable(true);
+      this.triangle2 = new Phaser.Geom.Triangle(
+        this.slope2.x,
+        this.slope2.y + this.slope2.height,
+        this.slope2.x + this.slope2.width,
+        this.slope2.y,
+        this.slope2.x + this.slope2.width,
+        this.slope2.y + this.slope2.height
+      );
+
+      this.floor = this.physics.add.sprite(
+        0,
+        this.game.config.height - 32,
+        "floor"
+      );
+      this.floor.setImmovable(true);
+      this.floor.setOrigin(0);
+      this.floor.body.setAllowGravity(false);
+
+      this.big = this.physics.add.sprite(
+        this.floor.width,
+        this.game.config.height - 132,
+        "big"
+      );
+      this.big.x = this.floor.width - this.big.width;
+      this.big.setImmovable(true);
+      this.big.setOrigin(0);
+      this.big.body.setAllowGravity(false);
+
+      this.slope = this.physics.add.sprite(
+        this.big.x - this.big.width,
+        this.game.config.height - 132,
+        "slope"
+      );
+      this.slope.setImmovable(true);
+      this.slope.setOrigin(0);
+
+      this.triangle = new Phaser.Geom.Triangle(
+        this.slope.x,
+        this.slope.y + this.slope.height,
+        this.slope.x + this.slope.width,
+        this.slope.y,
+        this.slope.x + this.slope.width,
+        this.slope.y + this.slope.height
+      );
+
+      this.graphics = this.add.graphics({
+        lineStyle: { width: 2, color: 0x00aa00 }
+      });
+
+      // const slopeGroup = [
+      //   //this.add.triangle(336, 504, 0, 64, 64, 0, 64, 64, 0x21572f).setOrigin(0).setName('slope-1'),
+      //   //this.add.triangle(0, 504, 0, 0, 64, 64, 0, 64, 0x21572f).setOrigin(0).setName('slope-2'),
+      // ];
+      // this.slopeGroup = slopeGroup;
+      // this.slopes = this.physics.add.staticGroup();
+      // this.slopes.addMultiple(slopeGroup);
+
+      // create geometric shapes for slope collision detection
+      // this.geometricSlopes = [];
+      // this.slopes.children.iterate(slope => {
+      //   //let { x1, y1, x2, y2, x3, y3 } = slope.geom;
+      //   let { x1, y1, x2, y2, x3, y3 } = { x1: 0, y1: 64, x2: 64, y2: 0, x3: 64, y3: 64 };
+      //   x1 += slope.x;
+      //   y1 += slope.y;
+      //   x2 += slope.x;
+      //   y2 += slope.y;
+      //   x3 += slope.x;
+      //   y3 += slope.y;
+      //   this.geometricSlopes[slope.name] = new Phaser.Geom.Triangle(x1, y1, x2, y2, x3, y3);
+      // });
+
+      // player
+      // this.player = this.physics.add.sprite(300, 450, 'dude');
+      // this.player.body.gravity.y = gravityY;
+
+      // // set main camera to follow the player
+      // //this.cameras.main.startFollow(this.player);
+
+      // // player animations
+      // this.anims.create({
+      //   key: 'turn',
+      //   frames: [{ key: 'dude', frame: 4 }],
+      // });
+      // this.anims.create({
+      //   key: 'right',
+      //   frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
+      //   frameRate: 6,
+      //   repeat: -1
+      // });
+      // this.anims.create({
+      //   key: 'rightJump',
+      //   frames: [{ key: 'dude', frame: 8 }],
+      // });
+
+      this.anims.create({
+        key: "run",
+        frames: this.anims.generateFrameNumbers("dude", {
+          start: 5,
+          end: 8,
+          //first: 1
+        }),
+        frameRate: 6,
+        repeat: -1
+      });
+      this.anims.create({
+        key: "idle",
+        frames: this.anims.generateFrameNumbers("dude", {
+          start: 4,
+          end: 4
+        })
+      });
+      this.anims.create({
+        key: "jump",
+        frames: this.anims.generateFrameNumbers("dude", {
+          start: 8,
+          end: 8
+        })
+      });
+
+      this.player = this.physics.add.sprite(
+        //this.game.config.width / 2 - 124,
+        280,
+        this.game.config.height - 96,
+        "dude"
+      );
+      this.player.name = "player";
+      this.player.anims.play("idle");
+      this.player.body.gravity.y = gravityY;
+      //this.cameras.main.startFollow(this.player);
+
+      // const { RIGHT, LEFT, UP } = Phaser.Input.Keyboard.KeyCodes;
+      // this.keys = this.input.keyboard.addKeys({
+      //   left: LEFT,
+      //   right: RIGHT,
+      //   up: UP
+      // });
+
+      this.input.keyboard.on("keydown_D", () => {
+        if (!this.physics.world.drawDebug)
+          this.physics.world.createDebugGraphic();
+        this.physics.world.debugGraphic.visible = this.debug = !this.debug;
+      });
+
+      // bind keyboard controls
+      this.cursors = this.input.keyboard.createCursorKeys();
+
+      // initial debug graphics styles
+      this.graphics = this.add.graphics({
+        lineStyle: { width: 2, color: 0x00aa00 }
+      });
+
+      // collision detection
+      // this.physics.add.collider([test, test2], this.player);
+      //this.physics.add.overlap(this.player, this.slopes, playerSlopeOverlap, null, this);
+      this.physics.add.collider([this.floor, this.big], this.player);
+    }
+
+    function jump(player) {
+      player.body.setAllowGravity(true);
+      player.body.gravity.y = gravityY;
+      player.body.setVelocityY(playerVelY);
+    }
+
+    function update() {
+      const { right, left, up } = this.cursors;
+      const isGround =
+        this.player.body.touching.down || this.player.body.blocked.down;
+
+      this.graphics.clear();
+      this.graphics.lineStyle(2, 0xff0000);
+
+      if ((right.isDown || left.isDown) && (isGround || this.player.isOnSlope))
+        this.player.anims.play("run", true);
+      else if (!isGround && !this.player.isOnSlope)
+        this.player.anims.play("jump", true);
+      else this.player.anims.play("idle", true);
+
+      if (right.isDown) {
+        this.player.body.setVelocityX(playerVelX);
+        this.player.setFlipX(false);
+      } else if (left.isDown) {
+        this.player.body.setVelocityX(-playerVelX);
+        this.player.setFlipX(true);
+      } else {
+        if (!isGround && !this.player.isOnSlope)
+          this.player.body.velocity.x *= 0.98;
+        else this.player.body.setVelocityX(0);
+      }
+
+      if (isGround && up.isDown) this.player.body.setVelocityY(playerVelY);
+
+      if (this.physics.world.intersects(this.player.body, this.slope.body)) {
+        if (intersects(this.player.getBounds(), this.triangle)) {
+          if (up.isDown) jump(this.player);
+          else {
+            let dX =
+              this.player.body.position.x + this.player.width - this.slope.x;
+            this.player.body.position.y =
+              this.slope.y + this.slope.height - this.player.height - dX;
+            this.player.body.setAllowGravity(false);
+
+          }
+        }
+      } else this.player.body.setAllowGravity(true);
+
+      if (intersects(this.player.getBounds(), this.triangle)) {
+        this.player.isOnSlope = true;
+        this.graphics.lineStyle(2, 0xff0000);
+      } else {
+        this.player.isOnSlope = false;
+        this.graphics.lineStyle(2, 0xffff00);
+      }
+
+      this.graphics.strokeTriangleShape(this.triangle)
+
+      // Player move left, move right and idle
+      // if ((this.cursors.right.isDown || this.cursors.left.isDown) && (isGround || this.player.isOnSlope))
+      //   this.player.anims.play("right", true);
+      // else if (!isGround && !this.player.isOnSlope)
+      //   this.player.anims.play("rightJump", true);
+      // else this.player.anims.play("turn", true);
+
+      // if (this.cursors.right.isDown) {
+      //   this.player.body.setVelocityX(playerVelX);
+      //   this.player.setFlipX(false);
+      // } else if (this.cursors.left.isDown) {
+      //   this.player.body.setVelocityX(-playerVelX);
+      //   this.player.setFlipX(true);
+      // } else {
+      //   if (!isGround && !this.player.isOnSlope)
+      //     this.player.body.velocity.x *= 0.98;
+      //   else this.player.body.setVelocityX(0);
+      // }
+
+      // // Player jump
+      // if (isGround && this.cursors.up.isDown) {
+      //   this.player.body.setVelocityY(playerVelY);
+      //   //this.player.body.gravity.y = gravityY;
+      // }
+
+      // // Slope collision
+      // //let playerIntersectsWithSlopeBody;
+      // //let playerIsOnSlope;
+      // //let slope = this.slopeGroup[0];
+      // //const geometricSlope = this.geometricSlopes[slope.name];
+      // //this.slopes.children.iterate(slope => {
+
+      // if (this.physics.world.intersects(this.player.body, this.slope.body)) {
+      //   //const geometricSlope = this.geometricSlopes[slope.name];
+      //   if (intersects(this.player.getBounds(), this.triangle)) {
+      //     if (this.cursors.up.isDown) {
+      //       jump(this.player);
+      //     }
+      //     // |\
+      //     // | \
+      //     // |__\
+      //     // else if (slope.geom.y1 === 0) {
+      //     //   let dX =
+      //     //     slope.x + slope.width - this.player.body.position.x;
+      //     //   this.player.body.position.y =
+      //     //     slope.y + slope.height - this.player.height - dX;
+      //     //   this.player.body.setAllowGravity(false);
+      //     //   //this.player.body.gravity.y = 1;
+      //     // }
+      //     //   /|
+      //     //  / |
+      //     // /__|
+      //     else {
+      //       let dX =
+      //         this.player.body.position.x + this.player.width - this.slope.x;
+      //       this.player.body.position.y =
+      //         this.slope.y + this.slope.height - this.player.height - dX;
+      //       this.player.body.setAllowGravity(false);
+      //       //this.player.body.gravity.y = 1;
+      //     }
+      //   }
+      // } else {
+      //   this.player.body.setAllowGravity(true);
+      // }
+
+      // //});
+
+      // if (intersects(this.player.getBounds(), this.triangle)) {
+      //   this.player.isOnSlope = true;
+      //   this.graphics.lineStyle(2, 0xff0000);
+      // } else {
+      //   this.player.isOnSlope = false;
+      //   this.graphics.lineStyle(2, 0xffff00);
+      // }
+
+      // // Debug line style
+      // // this.slopes.children.iterate(slope => {
+      // //const this.slope = this.this.slopes[slope.name];
+      // this.graphics.strokeTriangleShape(this.triangle);
+      // // });
+    }
+
+    // Geometric intersection
+    function intersects(objA, objB) {
+      return Phaser.Geom.Intersects.RectangleToTriangle(objA, objB);
+    }
+
+    // function processPlayerSlopeOverlap(player, slope) {
+    //   const geometricSlope = this.geometricSlopes[slope.name];
+    //   return intersects(player.getBounds(), geometricSlope);
+    // }
+
+    // function playerSlopeOverlap(player, slope) {
+    //   const geometricSlope = this.geometricSlopes[slope.name];
+
+    //   if (intersects(player.getBounds(), geometricSlope)) {
+    //     if (this.cursors.up.isDown) {
+    //       player.body.setAllowGravity(true);
+    //       player.body.gravity.y = gravityY;
+    //       player.body.setVelocityY(playerVelY);
+    //     }
+    //     // |\
+    //     // | \
+    //     // |__\
+    //     else if (slope.geom.y1 === 0) {
+    //       let dX =
+    //         slope.x + slope.width - player.body.position.x;
+    //       player.body.position.y =
+    //         slope.y + slope.height - player.height - dX;
+    //       player.body.setAllowGravity(false);
+    //       //player.body.gravity.y = 1;
+    //     }
+    //     //   /|
+    //     //  / |
+    //     // /__|
+    //     else {
+    //       let dX =
+    //         player.body.position.x + player.width - slope.x;
+    //       player.body.position.y =
+    //         slope.y + slope.height - player.height - dX;
+    //       player.body.setAllowGravity(false);
+    //       //player.body.gravity.y = 1;
+    //     }
+    //   }
+    // }
+  </script>
+
+</body>
+
+</html>
