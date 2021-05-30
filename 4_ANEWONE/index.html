@@ -15,6 +15,9 @@
     - Title screen
     - Menu screen with option to restart
 
+    Core
+    - Tileset for rendering
+
     Gameplay
     - Grasslands map
     - Helper creature
@@ -87,14 +90,14 @@
       this.add.rectangle(72, 64, 64, 32, 0xe8e8e8).setOrigin(0);
 
       // Ground
-      const ground = this.add.rectangle(-(game.config.width * 1.5), game.config.height - 32, game.config.width * 4, game.config.height, 0x457b3d).setOrigin(0);
+      const ground = this.add.rectangle(0, game.config.height - 32, game.config.width, 32, 0x457b3d).setOrigin(0);
       this.ground = this.physics.add.existing(ground, true);
 
       // Vehicles
       const vehicleConfig = [
-        { color: '0xff0000', x: 16, y: 16, name: 'red' },
-        { color: '0xffff00', x: 48, y: game.config.height / 2 - 8, name: 'yellow' },
-        { color: '0x0000ff', x: 80, y: game.config.height - 64, name: 'blue' },
+        { color: '0xff0000', x: 8, y: 16, name: 'red' },
+        { color: '0xffff00', x: 40, y: game.config.height / 2 - 8, name: 'yellow' },
+        { color: '0x0000ff', x: 72, y: game.config.height - 64, name: 'blue' },
         { color: '0xff6600', x: game.config.width - 32, y: 16, name: 'orange' },
         { color: '0x00ff00', x: game.config.width - 64, y: game.config.height / 2 - 8, name: 'green' },
         { color: '0x6600ff', x: game.config.width - 96, y: game.config.height - 64, name: 'purple' },
@@ -121,8 +124,8 @@
 
       // Player
       // const playerRectangle = this.add.rectangle(game.config.width / 2 - 8, game.config.height / 2 - 8, 16, 16, "0xffffff")
-      this.player = this.physics.add.sprite(game.config.width / 2 - 8, game.config.height / 2 - 8, 'player')
-        .setOrigin(0, 0)
+      this.player = this.physics.add.sprite(game.config.width / 2, game.config.height / 2, 'player')
+        .setOrigin(0)
         .setName('player')
         .setDepth(this.vehicles.children.size);
       //this.player = this.physics.add.existing(playerRectangle);
