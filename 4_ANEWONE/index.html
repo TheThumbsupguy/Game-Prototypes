@@ -94,10 +94,10 @@
       const vehicleConfig = [
         { color: '0xff0000', x: 16, y: 16, name: 'red' },
         { color: '0xffff00', x: 48, y: game.config.height / 2 - 8, name: 'yellow' },
-        //{ color: '0x0000ff', x: 80, y: game.config.height - 64, name: 'blue' },
+        { color: '0x0000ff', x: 80, y: game.config.height - 64, name: 'blue' },
         { color: '0xff6600', x: game.config.width - 32, y: 16, name: 'orange' },
         { color: '0x00ff00', x: game.config.width - 64, y: game.config.height / 2 - 8, name: 'green' },
-        //{ color: '0x6600ff', x: game.config.width - 96, y: game.config.height - 64, name: 'purple' },
+        { color: '0x6600ff', x: game.config.width - 96, y: game.config.height - 64, name: 'purple' },
       ];
 
       this.vehicles = this.physics.add.group();
@@ -111,37 +111,13 @@
       }
 
       // Ammo
-      const ammoDefault = this.textures.createCanvas('ammo-default', 8, 8);
-      ammoDefault.context.fillStyle = '#ffffff';
-      ammoDefault.context.fillRect(0, 0, 8, 8);
-      ammoDefault.refresh();
-      this.ammoDefault = this.physics.add.group({
-        maxSize: 30,
-      });
-
-      const ammoRed = this.textures.createCanvas('ammo-red', 8, 8);
-      ammoRed.context.fillStyle = '#ff0000';
-      ammoRed.context.fillRect(0, 0, 8, 8);
-      ammoRed.refresh();
-      this.ammoRed = this.physics.add.group({
-        maxSize: 30,
-      });
-
-      const ammoOrange = this.textures.createCanvas('ammo-orange', 8, 8);
-      ammoOrange.context.fillStyle = '#ff6600';
-      ammoOrange.context.fillRect(0, 0, 8, 8);
-      ammoOrange.refresh();
-      this.ammoOrange = this.physics.add.group({
-        maxSize: 30,
-      });
-
-      const ammoYellow = this.textures.createCanvas('ammo-yellow', 8, 8);
-      ammoYellow.context.fillStyle = '#ffff00';
-      ammoYellow.context.fillRect(0, 0, 8, 8);
-      ammoYellow.refresh();
-      this.ammoYellow = this.physics.add.group({
-        maxSize: 30,
-      });
+      // const ammoDefault = this.textures.createCanvas('ammo-default', 8, 8);
+      // ammoDefault.context.fillStyle = '#ffffff';
+      // ammoDefault.context.fillRect(0, 0, 8, 8);
+      // ammoDefault.refresh();
+      // this.ammoDefault = this.physics.add.group({
+      //   maxSize: 30,
+      // });
 
       // Player
       // const playerRectangle = this.add.rectangle(game.config.width / 2 - 8, game.config.height / 2 - 8, 16, 16, "0xffffff")
@@ -203,23 +179,17 @@
       });
 
       // Ammo
-      this.ammoDefault.children.union(
-        this.ammoRed.children.union(
-          this.ammoOrange.children.union(
-            this.ammoYellow.children
-          )
-        )
-      ).each(ammo => {
-        if (ammo.active) {
-          if (ammo.lifespan > 0) {
-            ammo.lifespan -= delta;
-          } else {
-            ammo.setActive(false);
-            ammo.setVisible(false);
-            ammo.setVelocity(0);
-          }
-        }
-      });
+      // this.ammoDefault.children.each(ammo => {
+      //   if (ammo.active) {
+      //     if (ammo.lifespan > 0) {
+      //       ammo.lifespan -= delta;
+      //     } else {
+      //       ammo.setActive(false);
+      //       ammo.setVisible(false);
+      //       ammo.setVelocity(0);
+      //     }
+      //   }
+      // });
 
       // Player move left, move right and idle
       if ((right.isDown || left.isDown) && (isGround))
@@ -315,76 +285,28 @@
       return PLAYER_VELOCITY;
     }
 
-    function fireAmmo() {
-      const yellow = this.activeObjects.children.get('name', 'yellow');
-      const orange = this.activeObjects.children.get('name', 'orange');
-      const red = this.activeObjects.children.get('name', 'red');
-      const { up, right, down, left } = this.cursors;
-      const facing = this.player.direction;
-      const ammoVelocity = 400;
-      let ammo;
+    // function fireAmmo() {
+    //   const { up, right, down, left } = this.cursors;
+    //   const facing = this.player.direction;
+    //   const ammoVelocity = 400;
+    //   let ammo;
 
-      if (yellow) {
-        ammo = this.ammoYellow.get(yellow.x + 12, yellow.y + 12, 'ammo-yellow');
-        if (ammo) {
-          ammo.setActive(true);
-          ammo.setVisible(true);
-          ammo.lifespan = 1000;
-          if (right.isDown || left.isDown) {
-            ammo.body.setVelocityX(left.isDown ? -ammoVelocity : ammoVelocity);
-          } else {
-            ammo.body.setVelocityX(facing == 'left' ? -ammoVelocity : ammoVelocity);
-          }
-          ammo.body.setAllowGravity(false);
-        }
-      }
-
-      if (orange) {
-        ammo = this.ammoOrange.get(orange.x + 12, orange.y + 12, 'ammo-orange');
-        if (ammo) {
-          ammo.setActive(true);
-          ammo.setVisible(true);
-          ammo.lifespan = 1000;
-          if (right.isDown || left.isDown) {
-            ammo.body.setVelocityX(left.isDown ? -ammoVelocity : ammoVelocity);
-          } else {
-            ammo.body.setVelocityX(facing == 'left' ? -ammoVelocity : ammoVelocity);
-          }
-          ammo.body.setAllowGravity(false);
-        }
-      }
-
-      if (red) {
-        ammo = this.ammoRed.get(red.x + 12, red.y + 12, 'ammo-red');
-        if (ammo) {
-          ammo.setActive(true);
-          ammo.setVisible(true);
-          ammo.lifespan = 1000;
-          if (right.isDown || left.isDown) {
-            ammo.body.setVelocityX(left.isDown ? -ammoVelocity : ammoVelocity);
-          } else {
-            ammo.body.setVelocityX(facing == 'left' ? -ammoVelocity : ammoVelocity);
-          }
-          ammo.body.setAllowGravity(false);
-        }
-      }
-
-      // ammo = this.ammoDefault.get(this.player.x + 16, this.player.y + 16, 'ammo-default');
-      // if (ammo) {
-      //   ammo.setActive(true);
-      //   ammo.setVisible(true);
-      //   ammo.lifespan = 1000;
-      //   if (right.isDown || left.isDown) {
-      //     ammo.body.setVelocityX(left.isDown ? -ammoVelocity : ammoVelocity);
-      //   } else {
-      //     ammo.body.setVelocityX(facing == 'left' ? -ammoVelocity : ammoVelocity);
-      //   }
-      //   ammo.body.setAllowGravity(false);
-      // }
-    }
+    //   ammo = this.ammoDefault.get(this.player.x + 16, this.player.y + 16, 'ammo-default');
+    //   if (ammo) {
+    //     ammo.setActive(true);
+    //     ammo.setVisible(true);
+    //     ammo.lifespan = 1000;
+    //     if (right.isDown || left.isDown) {
+    //       ammo.body.setVelocityX(left.isDown ? -ammoVelocity : ammoVelocity);
+    //     } else {
+    //       ammo.body.setVelocityX(facing == 'left' ? -ammoVelocity : ammoVelocity);
+    //     }
+    //     ammo.body.setAllowGravity(false);
+    //   }
+    // }
 
     function spaceKeyDown() {
-      fireAmmo.call(this);
+      // fireAmmo.call(this);
     }
 
     function shiftKeyDown() {
