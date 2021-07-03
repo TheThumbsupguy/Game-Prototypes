@@ -79,23 +79,73 @@
     }
 
     function create() {
-      // Sky
-      //this.add.rectangle(-(game.config.width * 1.5), 0, game.config.width * 4, game.config.height - 32, 0x8cc4ff).setOrigin(0);
-
-      // Sun
-      this.add.rectangle(game.config.width - 64, 64, 32, 32, 0xf3cf49).setOrigin(0);
-
-      // Cloud
-      this.add.rectangle(56, 48, 64, 32, 0xe8e8e8).setOrigin(0);
-      this.add.rectangle(72, 64, 64, 32, 0xe8e8e8).setOrigin(0);
-
       // Ground
-      const ground = this.add.rectangle(0, game.config.height - 32, game.config.width, 32, 0x457b3d).setOrigin(0);
+      const tilesetData = [
+        '.',
+        '0',
+        '1',
+        '2',
+        '3',
+        '4',
+        '5',
+        '6',
+        '7',
+        '8',
+        '9',
+        'A',
+        'B',
+        'C',
+        'D',
+        'E',
+        'F',
+      ];
+      this.textures.generate('tileset', { data: tilesetData, pixelWidth: 32, pixelHeight: 32 });
+      // Load a map from a 2D array of tile indices
+      const level = [
+        [  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 ],
+        [  0,  0,  3,  0,  0,  0,  0,  0,  0,  0,  0 ],
+        [  0,  3,  3,  3,  0,  0,  0,  0,  3,  3,  0 ],
+        [  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 ],
+        [  0,  0,  0, 11, 11, 11,  0,  0,  0,  0,  0 ],
+        [  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 ],
+        [  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 ],
+        [  0,  0, 11, 11, 11, 11, 11,  0,  0,  0, 11 ],
+        [  0,  0,  0,  0,  0,  0,  0,  0,  0, 11, 11 ],
+        [ 11, 11, 11,  0,  0,  0,  0,  0, 11, 11, 11 ],
+        [ 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11 ]
+      ];
+      const map = this.make.tilemap({ data: level, tileWidth: 32, tileHeight: 32 });
+      const tiles = map.addTilesetImage('tileset');
+      const layer = map.createLayer(0, tiles, 0, 0);
+
+      layer.setCollision(11);
+      
+      const ground = this.add.rectangle(0, game.config.height + 64, game.config.width, 32, 0x457b3d).setOrigin(0);
       this.ground = this.physics.add.existing(ground, true);
 
       // Vehicles
+      const redVehicleData = [
+        '.......3.....',
+        '......333....',
+        '....5343335..',
+        '...332333333.',
+        '..33333333333',
+        '..37773337773',
+        '..38587778583',
+        '..38588888583',
+        '..37888888873',
+        '...333333333.',
+        '.F....5556...',
+        '3E34.6757.6..',
+        '.E.55.666.5..',
+        '......777.5..',
+        '.....6..7....',
+        '.....7..7....'
+      ];
+      this.textures.generate('redVehicle', { data: redVehicleData, pixelWidth: 2, pixelHeight: 2 });
+
       const vehicleConfig = [
-        { color: '0xff0000', x: 8, y: 16, name: 'red' },
+        { color: '0xff0000', x: 8, y: 16, name: 'red', textureName: 'redVehicle' },
         { color: '0xffff00', x: 40, y: game.config.height / 2 - 8, name: 'yellow' },
         { color: '0x0000ff', x: 72, y: game.config.height - 64, name: 'blue' },
         { color: '0xff6600', x: game.config.width - 32, y: 16, name: 'orange' },
@@ -106,10 +156,14 @@
       this.vehicles = this.physics.add.group();
 
       for (let index = 0; index < vehicleConfig.length; index++) {
-        const { color, x, y, name } = vehicleConfig[index];
-        const vehicle = this.add.rectangle(x, y, 24, 24, color)
-          .setOrigin(0, 0)
-          .setName(name);
+        const { color, x, y, name, textureName } = vehicleConfig[index];
+        let vehicle;
+        if (textureName) {
+          vehicle = this.add.image(x, y, textureName)
+        } else {
+          vehicle = this.add.rectangle(x, y, 24, 24, color)
+        }
+        vehicle.setOrigin(0, 0).setName(name);
         this.vehicles.add(vehicle);
       }
 
@@ -165,6 +219,7 @@
 
       // collision detection
       this.physics.add.collider([this.player, this.vehicles], this.ground);
+      this.physics.add.collider([this.player, this.vehicles], layer);
     }
 
     function update(time, delta) {

@@ -68,6 +68,10 @@ Mechanics
 - Configure mech
 - Zoom screen (passive)
 
+Foundation
+
+- Level editor
+
 ---------
 
 Setting
