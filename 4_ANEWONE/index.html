@@ -375,19 +375,25 @@
         const lastObject = this.activeObjects.getLast(true);
 
         // Only move the last object, which is the foundation of the mech.
-        if (canJump) {
+        if (canJump || !lastObject.body.allowGravity) {
           if (up.isDown) {
             lastObject.body.setVelocityY(-velocity);
           } else if (down.isDown) {
             lastObject.body.setVelocityY(velocity);
+          } else {
+            if (!lastObject.body.allowGravity) {
+              lastObject.body.setVelocityY(0);
+            }
           }
         }
 
         if (left.isDown) {
           lastObject.body.setVelocityX(-velocity);
+          lastObject.setFlipX(true);
           this.player.setFlipX(true);
         } else if (right.isDown) {
           lastObject.body.setVelocityX(velocity);
+          lastObject.setFlipX(false);
           this.player.setFlipX(false);
         } else {
           lastObject.body.setVelocityX(0);
@@ -450,7 +456,7 @@
     }
 
     function getVelocity() {
-      if (this.activeObjects.children.get('name', 'green')) {
+      if (this.activeObjects.children.get('name', 'red')) {
         return PLAYER_VELOCITY * 2;
       }
       return PLAYER_VELOCITY;
@@ -481,7 +487,7 @@
     }
 
     function shiftKeyDown() {
-      const activeObject = this.activeObjects.getLast(true) || this.player;
+      let activeObject = this.activeObjects.getLast(true) || this.player;
       let isEnteringVehicle = false;
 
       // For each vehicle on the map...
@@ -495,9 +501,19 @@
 
             isEnteringVehicle = true;
 
+            this.activeObjects
+              .children.each(object => {
+                object.body.setAllowGravity(false);
+              });
+
             this.activeObjects.add(vehicle);
             this.player.setDepth(0);
+            this.player.body.setAllowGravity(false);
             vehicle.setDepth(depth);
+
+            if (vehicle.name == 'yellow' || vehicle.name == 'green') {
+              vehicle.body.setAllowGravity(false);
+            }
           }
         }
       });
@@ -509,8 +525,15 @@
       } else {
         // Exiting a vehicle, get ready to zoom in and disperse vehicles.
         const position = this.player.x + (this.player.width / 2) - (this.activeObjects.children.size * 24 / 2);
-        this.activeObjects.setDepth(0).setX(position, 24).clear();
+        this.activeObjects
+          .setDepth(0)
+          .setX(position, 24)
+          .children.each(object => {
+            object.body.setAllowGravity(true);
+          });
+        this.activeObjects.clear();
         this.player.setDepth(this.vehicles.children.size);
+        this.player.body.setAllowGravity(true);
         this.cameras.main.zoomTo(1);
       }
     }
@@ -528,7 +551,7 @@
           this.player.body.touching.down || this.player.body.blocked.down;
       }
 
-      if (isGround && (!this.player.jumpTimeStamp || this.time.now - this.player.jumpTimeStamp >= 250)) {
+      if (isGround && (!this.player.jumpTimeStamp || this.time.now - this.player.jumpTimeStamp >= 500)) {
         this.player.jumpTimeStamp = this.time.now;
       }
     }
