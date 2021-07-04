@@ -197,10 +197,6 @@
           .setScrollFactor(scrollFactor);
       });
 
-      // Manually created ground from a shape
-      const ground = this.add.rectangle(0, game.config.height + 64, game.config.width, 32, 0x457b3d).setOrigin(0);
-      this.ground = this.physics.add.existing(ground, true);
-
       // Vehicles
       const redVehicleData = [
         '.......3.....',
@@ -296,7 +292,6 @@
       this.cursors.right.on('down', rightKeyDown, this);
 
       // collision detection
-      this.physics.add.collider([this.player, this.vehicles], this.ground);
       this.physics.add.collider([this.player, this.vehicles], map.getLayer('ground').tilemapLayer);
     }
 
