@@ -198,6 +198,7 @@
       });
 
       // Vehicles
+
       const redVehicleData = [
         '.......3.....',
         '......333....',
@@ -218,13 +219,52 @@
       ];
       this.textures.generate('redVehicle', { data: redVehicleData, pixelWidth: 2, pixelHeight: 2 });
 
+      const greenVehicleData = [
+        '....DDDDDDDD....',
+        '...DDEEDDDDDD...',
+        '..DDDEEDDDDDDD..',
+        '..DDDDDDDDDDDD..',
+        '..DDDD5555DDDD..',
+        '..DDD555555DDD..',
+        '..DDD555555DDD..',
+        '..DDD555555DDD..',
+        '..334244333333..',
+        '.33344443333333.',
+        '3333444433333333',
+        '....5...5..5....',
+        '...5....5...5...',
+        '.66....66....66.',
+        '.66....66....66.'
+      ];
+      this.textures.generate('greenVehicle', { data: greenVehicleData, pixelWidth: 2, pixelHeight: 2 });
+
+      const yellowVehicleData = [
+        '.....DEEEEEED...',
+        '.....EEEEEFFE...',
+        '.....EEEDDFFE...',
+        '334..EEDDDDEE...',
+        '3333.EEDDDDEE...',
+        '33333EEDDDDEE...',
+        '.FF2222222222F..',
+        '.F222222222222F.',
+        '.22222222222222F',
+        '4443322222222222',
+        '44433FFFFFFFFFFF',
+        '.111FFFFFFFFFFF.',
+        '.11FFFFFFFFFFF..',
+        '.1FFFFFFFFFF1...',
+        '...3333.........',
+        '...333..........'
+      ];
+      this.textures.generate('yellowVehicle', { data: yellowVehicleData, pixelWidth: 2, pixelHeight: 2 });
+
       const vehicleConfig = [
         { color: '0xff0000', x: 8, y: 16, name: 'red', textureName: 'redVehicle' },
-        { color: '0xffff00', x: 40, y: game.config.height / 2 - 8, name: 'yellow' },
-        { color: '0x0000ff', x: 72, y: game.config.height - 64, name: 'blue' },
-        { color: '0xff6600', x: game.config.width - 32, y: 16, name: 'orange' },
-        { color: '0x00ff00', x: game.config.width - 64, y: game.config.height / 2 - 8, name: 'green' },
-        { color: '0x6600ff', x: game.config.width - 96, y: game.config.height - 64, name: 'purple' },
+        { color: '0xffff00', x: 40, y: game.config.height / 2 - 8, name: 'yellow', textureName: 'yellowVehicle' },
+        //{ color: '0x0000ff', x: 72, y: game.config.height - 64, name: 'blue', textureName: 'redVehicle' },
+        //{ color: '0xff6600', x: game.config.width - 32, y: 16, name: 'orange', textureName: 'redVehicle' },
+        { color: '0x00ff00', x: game.config.width - 64, y: game.config.height / 2 - 8, name: 'green', textureName: 'greenVehicle' },
+        //{ color: '0x6600ff', x: game.config.width - 96, y: game.config.height - 64, name: 'purple', textureName: 'redVehicle' },
       ];
 
       this.vehicles = this.physics.add.group();
