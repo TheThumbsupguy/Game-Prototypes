@@ -300,7 +300,7 @@
       this.player.direction = 'right';
 
       // Camera follow player
-      this.cameras.main.startFollow(this.player, false, 1, 1, 0, 60);
+      this.cameras.main.startFollow(this.player, false, 0.0625, 0.0625, 0, 60);
       //this.cameras.main.zoomTo(0.25);
 
       // Player animations
@@ -344,8 +344,10 @@
 
       // Stop non-active vehicles
       this.vehicles.children.each(vehicle => {
-        if (vehicle.body.velocity.x != 0 || vehicle.body.velocity.y != 0) {
-          vehicle.body.setVelocityX(0);
+        if (vehicle.body.velocity.x > 0) {
+          vehicle.body.setVelocityX(vehicle.body.velocity.x - 1);
+        } else if (vehicle.body.velocity.x < 0) {
+          vehicle.body.setVelocityX(vehicle.body.velocity.x + 1);
         }
       });
 
@@ -513,17 +515,16 @@
 
             if (vehicle.name == 'yellow' || vehicle.name == 'green') {
               vehicle.body.setAllowGravity(false);
+              this.cameras.main.setFollowOffset(0, 0);
+            } else if (vehicle.name == 'red') {
+              this.cameras.main.setFollowOffset(0, 30);
             }
           }
         }
       });
 
-      // Entering a new vehicle, get ready to zoom out.
-      if (isEnteringVehicle) {
-        const zoom = 1 - (this.activeObjects.children.size * 0.05);
-        this.cameras.main.zoomTo(zoom);
-      } else {
-        // Exiting a vehicle, get ready to zoom in and disperse vehicles.
+      // Exiting a vehicle, get ready to disperse vehicles.
+      if (!isEnteringVehicle) {
         const position = this.player.x + (this.player.width / 2) - (this.activeObjects.children.size * 24 / 2);
         this.activeObjects
           .setDepth(0)
@@ -534,7 +535,7 @@
         this.activeObjects.clear();
         this.player.setDepth(this.vehicles.children.size);
         this.player.body.setAllowGravity(true);
-        this.cameras.main.zoomTo(1);
+        this.cameras.main.setFollowOffset(0, 60);
       }
     }
 
