@@ -1,7 +1,6 @@
 /*
 
 MECH BAY
-MECHA
 
 ---------
 

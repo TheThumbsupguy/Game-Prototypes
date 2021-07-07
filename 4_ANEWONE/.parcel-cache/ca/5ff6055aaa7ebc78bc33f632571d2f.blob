@@ -1,0 +1,1 @@
+module.exports = require('./bundle-url').getBundleURL() + "player.HASH_REF_fb377b6926e8516e2cc697ace1c5626e.png";

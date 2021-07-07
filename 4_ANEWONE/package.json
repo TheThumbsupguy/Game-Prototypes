@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start:dev": "http-server"
+    "start": "parcel serve ./index.html",
+    "build": "parcel build ./index.html"
   },
   "repository": {
     "type": "git",
@@ -14,10 +15,10 @@
   "author": "jross.thumbsup@gmail.com",
   "license": "MIT",
   "dependencies": {
-    "phaser": "^3.24.1"
+    "phaser": "^3.55.2"
   },
   "devDependencies": {
-    "ecstatic": "^4.1.4",
-    "http-server": "^0.12.3"
+    "@parcel/transformer-image": "^2.0.0-beta.3.1",
+    "parcel": "^2.0.0-beta.3.1"
   }
 }
