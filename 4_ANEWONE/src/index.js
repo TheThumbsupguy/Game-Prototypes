@@ -41,9 +41,9 @@ const config = {
   pixelArt: true,
   backgroundColor: '0x8cc4ff',
   scale: {
-    mode: Phaser.Scale.FIT,
+    zoom: 2,
+    //mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
-    autoResize: true
   },
   physics: {
     default: 'arcade',
@@ -294,7 +294,7 @@ function create() {
 
   // Camera follow player
   this.cameras.main.startFollow(this.player, false, 0.0625, 0.0625, 0, 60);
-  this.cameras.main.zoomTo(0.75);
+  //this.cameras.main.zoomTo(0.75);
 
   // Player animations
   this.anims.create({
