@@ -91,4 +91,34 @@ Setting
 
 ---------
 
+TODO
+
+User Interface
+- Title screen
+- Menu screen with option to restart
+
+Core
+- Tileset for rendering
+
+Gameplay
+- Grasslands map
+- Helper creature
+- Starter mech
+- Mech crafting
+
+Graphics
+- Starter mech
+- Helper creature
+- Grasslands textures
+- Wood resource
+- Stone resource
+- Iron ore resource
+
+Mechanics
+- Mech power config
+- Power cores
+
+Project Files
+- Organize PlayScene into game files
+
 */
